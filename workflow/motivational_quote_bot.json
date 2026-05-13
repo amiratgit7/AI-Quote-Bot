@@ -1,0 +1,124 @@
+{
+  "name": "AI Motivational Quote Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger-1",
+      "name": "Every Morning 8AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an inspiring life coach. Generate a single powerful motivational quote for the morning. The quote should be uplifting, concise (1-2 sentences), and include the author's name if it is a famous quote, or label it as AI-Generated if original. Format: Quote - Author. Only output the quote and author, nothing else.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Give me today's motivational morning quote.\"\n    }\n  ],\n  \"temperature\": 0.9,\n  \"max_tokens\": 150\n}",
+        "options": {}
+      },
+      "id": "groq-api-1",
+      "name": "Groq - Generate Quote",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "groq-api-cred",
+          "name": "Groq API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst quote = response.choices[0].message.content.trim();\nconst today = new Date().toLocaleDateString('en-US', {\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric'\n});\n\nconst message = `Good Morning!\\n\\n${quote}\\n\\nDate: ${today}\\n\\nHave an amazing day ahead!`;\n\nreturn [{ json: { message } }];"
+      },
+      "id": "format-message-1",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "your-email@gmail.com",
+        "subject": "Your Morning Motivational Quote",
+        "emailType": "text",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "id": "gmail-1",
+      "name": "Send to Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [960, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth-cred",
+          "name": "Gmail Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every Morning 8AM": {
+      "main": [
+        [
+          {
+            "node": "Groq - Generate Quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq - Generate Quote": {
+      "main": [
+        [
+          {
+            "node": "Format Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["quote-bot", "automation", "groq", "gmail"]
+}
