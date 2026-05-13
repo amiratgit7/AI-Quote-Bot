@@ -35,7 +35,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an inspiring life coach. Generate a single powerful motivational quote for the morning. The quote should be uplifting, concise (1-2 sentences), and include the author's name if it is a famous quote, or label it as AI-Generated if original. Format: Quote - Author. Only output the quote and author, nothing else.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Give me today's motivational morning quote.\"\n    }\n  ],\n  \"temperature\": 0.9,\n  \"max_tokens\": 150\n}",
+        "jsonBody": "{\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an inspiring life coach. Every day you must generate a DIFFERENT motivational quote — never repeat the same quote twice. Rotate through these themes in order: Monday=resilience, Tuesday=courage, Wednesday=growth, Thursday=creativity, Friday=success, Saturday=gratitude, Sunday=wisdom. Include the author name for famous quotes, or label it as AI-Generated for original ones. Format: Quote - Author. Output only the quote and author, nothing else.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Today is {{ $now.toFormat('cccc, LLLL d, yyyy') }}. Give me a fresh, unique motivational morning quote I have never heard before. Avoid the most overused quotes.\"\n    }\n  ],\n  \"temperature\": 1.0,\n  \"max_tokens\": 150\n}",
         "options": {}
       },
       "id": "groq-api-1",
